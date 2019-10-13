@@ -7,28 +7,26 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.aki.stepstracker.R;
-import com.aki.stepstracker.model.StepInfo;
-import com.aki.stepstracker.utils.StepsDataParser;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -87,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     Log.i(TAG, "Successfully subscribed!");
-                                    getTodaySteps();
+                                    readData();
                                 } else {
                                     Log.w(TAG, "There was a problem subscribing.", task.getException());
                                 }
@@ -95,38 +93,32 @@ public class MainActivity extends AppCompatActivity {
                         });
     }
 
-    private void getTodaySteps() {
-        new TodayStepCountTask().execute();
-    }
-
     public void nextScreen(View view) {
         startActivity(new Intent(MainActivity.this, UserDataActivity.class));
     }
 
-    private class TodayStepCountTask extends AsyncTask<Void, Void, StepInfo> {
-        private StepInfo stepInfo;
-
-        protected StepInfo doInBackground(Void... params) {
-            Task<DataSet> dataSetTask = Fitness.getHistoryClient(getApplicationContext(), GoogleSignIn.getLastSignedInAccount(getApplicationContext())).readDailyTotal(DataType.TYPE_STEP_COUNT_CUMULATIVE);
-            try {
-                DataSet await = Tasks.await(dataSetTask);
-                stepInfo = StepsDataParser.dumpDataSet(await);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            return stepInfo;
-        }
-
-        @Override
-        protected void onPostExecute(StepInfo stepInfo) {
-            super.onPostExecute(stepInfo);
-            if (stepInfo == null) {
-                stepsCount.setText("0");
-            }
-            else {
-                date.setText(stepInfo.getDate());
-                stepsCount.setText(stepInfo.getSteps());
-            }
-        }
+    private void readData() {
+        Fitness.getHistoryClient(this, GoogleSignIn.getLastSignedInAccount(this))
+                .readDailyTotal(DataType.TYPE_STEP_COUNT_DELTA)
+                .addOnSuccessListener(
+                        new OnSuccessListener<DataSet>() {
+                            @Override
+                            public void onSuccess(DataSet dataSet) {
+                                int total =
+                                        dataSet.isEmpty()
+                                                ? 0
+                                                : dataSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS).asInt();
+                                Log.i(TAG, "Total steps: " + total);
+                                stepsCount.setText(String.valueOf(total));
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "There was a problem getting the step count.", e);
+                            }
+                        });
     }
+
 }
