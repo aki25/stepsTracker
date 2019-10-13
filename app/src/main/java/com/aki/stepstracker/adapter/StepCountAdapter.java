@@ -37,6 +37,7 @@ public class StepCountAdapter extends RecyclerView.Adapter<StepCountAdapter.View
     @Override
     public void onBindViewHolder(@NonNull StepCountAdapter.ViewHolder holder, int position) {
         int steps = mData.get(position).getSteps();
+        String date = mData.get(position).getDate();
         holder.stepsCount.setText(String.valueOf(steps));
     }
 

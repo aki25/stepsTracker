@@ -147,6 +147,7 @@ public class UserDataActivity extends AppCompatActivity {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
         DateFormat dateFormat = getDateTimeInstance();
         int totalSteps = 0;
+//        String date = dateFormat.format(dataSet.getDataPoints().get(0).getStartTime(TimeUnit.MILLISECONDS));
         for (DataPoint dp : dataSet.getDataPoints()) {
 //            Log.i(TAG, "Data point:");
 //            Log.i(TAG, "\tType: " + dp.getDataType().getName());
@@ -158,7 +159,7 @@ public class UserDataActivity extends AppCompatActivity {
             }
         }
         Log.i(TAG, "\tSteps for day: " + totalSteps);
-        stepsList.add(new StepInfo(totalSteps));
+        stepsList.add(new StepInfo("date",totalSteps));
     }
 
 }
