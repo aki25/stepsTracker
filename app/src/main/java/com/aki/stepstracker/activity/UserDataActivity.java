@@ -83,6 +83,10 @@ public class UserDataActivity extends AppCompatActivity {
         layoutManager.setStackFromEnd(flag);
     }
 
+    public void onCustomBackClicked(View view) {
+        onBackPressed();
+    }
+
     private class ReadData extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {

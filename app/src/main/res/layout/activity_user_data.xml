@@ -7,6 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".activity.UserDataActivity">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:onClick="onCustomBackClicked"
+        android:src="@drawable/ic_keyboard_arrow_left_white_36dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
