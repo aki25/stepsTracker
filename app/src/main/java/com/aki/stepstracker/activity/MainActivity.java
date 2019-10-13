@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aki.stepstracker.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_OAUTH_REQUEST_CODE = 0x1001;
     TextView date;
     TextView stepsCount;
+    private boolean canMoveToNextScreen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
      * Records step data by requesting a subscription to background step data.
      */
     public void subscribe() {
+        canMoveToNextScreen = true;
         // To create a subscription, invoke the Recording API. As soon as the subscription is
         // active, fitness data will start recording.
         Fitness.getRecordingClient(this, Objects.requireNonNull(GoogleSignIn.getLastSignedInAccount(this)))
@@ -94,7 +97,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nextScreen(View view) {
-        startActivity(new Intent(MainActivity.this, UserDataActivity.class));
+        if (canMoveToNextScreen)
+            startActivity(new Intent(MainActivity.this, UserDataActivity.class));
+        else
+            Toast.makeText(this, "Authentication error", Toast.LENGTH_SHORT).show();
     }
 
     private void readData() {
