@@ -15,6 +15,7 @@ import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
+import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.request.DataReadRequest;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static java.text.DateFormat.getDateTimeInstance;
 import static java.text.DateFormat.getTimeInstance;
 
 public class UserDataActivity extends AppCompatActivity {
@@ -62,6 +64,13 @@ public class UserDataActivity extends AppCompatActivity {
             Log.i(TAG, "Range Start: " + dateFormat.format(startTime));
             Log.i(TAG, "Range End: " + dateFormat.format(endTime));
 
+            DataSource ESTIMATED_STEP_DELTAS = new DataSource.Builder()
+                    .setAppPackageName("com.google.android.gms")
+                    .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
+                    .setType(DataSource.TYPE_DERIVED)
+                    .setStreamName("estimated_steps")
+                    .build();
+
             DataReadRequest readRequest =
                     new DataReadRequest.Builder()
                             // The data request can specify multiple data types to return, effectively
@@ -69,11 +78,11 @@ public class UserDataActivity extends AppCompatActivity {
                             // In this example, it's very unlikely that the request is for several hundred
                             // datapoints each consisting of a few steps and a timestamp.  The more likely
                             // scenario is wanting to see how many steps were walked per day, for 7 days.
-                            .read(DataType.TYPE_STEP_COUNT_CUMULATIVE)
+                            .aggregate(ESTIMATED_STEP_DELTAS,DataType.AGGREGATE_STEP_COUNT_DELTA)
                             // Analogous to a "Group By" in SQL, defines how data should be aggregated.
                             // bucketByTime allows for a time span, whereas bucketBySession would allow
                             // bucketing by "sessions", which would need to be defined in code.
-//                            .bucketByTime(1, TimeUnit.DAYS)
+                            .bucketByTime(1, TimeUnit.DAYS)
                             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
                             .enableServerQueries()
                             .build();
@@ -88,7 +97,7 @@ public class UserDataActivity extends AppCompatActivity {
             if (result != null) {
                 List<Bucket> buckets = result.getBuckets();
                 for (int i = 0; i<buckets.size();i++) {
-                    dumpDataSet(buckets.get(i).getDataSets().get(i));
+                    dumpDataSet(buckets.get(i).getDataSets().get(0));
                 }
             } else {
                 Log.i(TAG, "result was empty");
@@ -99,8 +108,8 @@ public class UserDataActivity extends AppCompatActivity {
 
     private void dumpDataSet(DataSet dataSet) {
         Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
-        DateFormat dateFormat = getTimeInstance();
-
+        DateFormat dateFormat = getDateTimeInstance();
+        int totalSteps = 0;
         for (DataPoint dp : dataSet.getDataPoints()) {
             Log.i(TAG, "Data point:");
             Log.i(TAG, "\tType: " + dp.getDataType().getName());
@@ -108,8 +117,10 @@ public class UserDataActivity extends AppCompatActivity {
             Log.i(TAG, "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
             for (Field field : dp.getDataType().getFields()) {
                 Log.i(TAG, "\tField: " + field.getName() + " Value: " + dp.getValue(field));
+                totalSteps = totalSteps + dp.getValue(field).asInt();
             }
         }
+        Log.i(TAG, "\tSteps for day: " + totalSteps);
     }
 
 }
