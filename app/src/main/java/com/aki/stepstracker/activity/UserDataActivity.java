@@ -12,6 +12,7 @@ import com.aki.stepstracker.R;
 import com.aki.stepstracker.adapter.StepCountAdapter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
@@ -85,9 +86,9 @@ public class UserDataActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (result != null) {
-                List<DataSet> dataSets = result.getDataSets();
-                for (DataSet data : dataSets) {
-                    dumpDataSet(data);
+                List<Bucket> buckets = result.getBuckets();
+                for (int i = 0; i<buckets.size();i++) {
+                    dumpDataSet(buckets.get(i).getDataSets().get(i));
                 }
             } else {
                 Log.i(TAG, "result was empty");
