@@ -10,18 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aki.stepstracker.R;
+import com.aki.stepstracker.model.StepInfo;
 import com.google.android.gms.fitness.data.DataSet;
 
 import java.util.List;
 
 public class StepCountAdapter extends RecyclerView.Adapter<StepCountAdapter.ViewHolder> {
 
-    private List<DataSet> mData;
+    private List<StepInfo> mData;
     private LayoutInflater mInflater;
 //    private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    public StepCountAdapter(Context context, List<DataSet> data) {
+    public StepCountAdapter(Context context, List<StepInfo> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
     }
@@ -35,8 +36,8 @@ public class StepCountAdapter extends RecyclerView.Adapter<StepCountAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull StepCountAdapter.ViewHolder holder, int position) {
-        String steps = " ";
-        holder.stepsCount.setText(steps);
+        int steps = mData.get(position).getSteps();
+        holder.stepsCount.setText(String.valueOf(steps));
     }
 
     @Override

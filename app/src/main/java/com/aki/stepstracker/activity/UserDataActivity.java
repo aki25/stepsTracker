@@ -4,12 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.aki.stepstracker.R;
 import com.aki.stepstracker.adapter.StepCountAdapter;
+import com.aki.stepstracker.model.StepInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.Bucket;
@@ -20,11 +24,11 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
-import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,17 +36,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.text.DateFormat.getDateTimeInstance;
-import static java.text.DateFormat.getTimeInstance;
 
 public class UserDataActivity extends AppCompatActivity {
 
     public static final String TAG = "UserDataActivity";
     RecyclerView recyclerView;
-
+    List<StepInfo> stepsList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
+        GradientDrawable drawable = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR, new int[] {Color.BLUE,Color.WHITE});
+        findViewById(R.id.root).setBackground(drawable);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -78,7 +84,7 @@ public class UserDataActivity extends AppCompatActivity {
                             // In this example, it's very unlikely that the request is for several hundred
                             // datapoints each consisting of a few steps and a timestamp.  The more likely
                             // scenario is wanting to see how many steps were walked per day, for 7 days.
-                            .aggregate(ESTIMATED_STEP_DELTAS,DataType.AGGREGATE_STEP_COUNT_DELTA)
+                            .read(DataType.TYPE_STEP_COUNT_DELTA)
                             // Analogous to a "Group By" in SQL, defines how data should be aggregated.
                             // bucketByTime allows for a time span, whereas bucketBySession would allow
                             // bucketing by "sessions", which would need to be defined in code.
@@ -104,6 +110,12 @@ public class UserDataActivity extends AppCompatActivity {
             }
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            recyclerView.setAdapter(new StepCountAdapter(getApplicationContext(),stepsList));
+        }
     }
 
     private void dumpDataSet(DataSet dataSet) {
@@ -111,8 +123,8 @@ public class UserDataActivity extends AppCompatActivity {
         DateFormat dateFormat = getDateTimeInstance();
         int totalSteps = 0;
         for (DataPoint dp : dataSet.getDataPoints()) {
-            Log.i(TAG, "Data point:");
-            Log.i(TAG, "\tType: " + dp.getDataType().getName());
+//            Log.i(TAG, "Data point:");
+//            Log.i(TAG, "\tType: " + dp.getDataType().getName());
             Log.i(TAG, "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
             Log.i(TAG, "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
             for (Field field : dp.getDataType().getFields()) {
@@ -121,6 +133,7 @@ public class UserDataActivity extends AppCompatActivity {
             }
         }
         Log.i(TAG, "\tSteps for day: " + totalSteps);
+        stepsList.add(new StepInfo(totalSteps));
     }
 
 }
