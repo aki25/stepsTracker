@@ -1,5 +1,6 @@
 package com.aki.stepstracker.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,7 @@ import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -45,15 +47,28 @@ public class UserDataActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     List<StepInfo> stepsList = new ArrayList<>();
     LinearLayoutManager layoutManager;
+    ExtendedFloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
         GradientDrawable drawable = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR, new int[] {Color.parseColor("#FF8489"),Color.parseColor("#D5ADC8")});
+                GradientDrawable.Orientation.TL_BR, new int[]{Color.parseColor("#FF8489"), Color.parseColor("#D5ADC8")});
         findViewById(R.id.root).setBackground(drawable);
-
+        fab = findViewById(R.id.toggle);
         recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    fab.shrink();
+                } else {
+                    fab.extend();
+                }
+            }
+        });
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         new ReadData().execute();
@@ -112,7 +127,7 @@ public class UserDataActivity extends AppCompatActivity {
             }
             if (result != null) {
                 List<Bucket> buckets = result.getBuckets();
-                for (int i = 0; i<buckets.size();i++) {
+                for (int i = 0; i < buckets.size(); i++) {
                     dumpDataSet(buckets.get(i).getDataSets().get(0));
                 }
             } else {
@@ -124,7 +139,7 @@ public class UserDataActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            recyclerView.setAdapter(new StepCountAdapter(getApplicationContext(),stepsList));
+            recyclerView.setAdapter(new StepCountAdapter(getApplicationContext(), stepsList));
         }
     }
 
