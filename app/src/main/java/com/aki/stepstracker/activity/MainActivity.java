@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.aki.stepstracker.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
     private static final int REQUEST_OAUTH_REQUEST_CODE = 0x1001;
+    TextView date;
+    TextView stepsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         GradientDrawable drawable = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR, new int[]{Color.parseColor("#3EADCF"), Color.parseColor("#ABE9CD")});
         findViewById(R.id.root).setBackground(drawable);
+        date = findViewById(R.id.dateToday);
 
         FitnessOptions fitnessOptions =
                 FitnessOptions.builder()
@@ -82,6 +86,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nextScreen(View view) {
-        startActivity(new Intent(MainActivity.this ,UserDataActivity.class));
+        startActivity(new Intent(MainActivity.this, UserDataActivity.class));
     }
 }
