@@ -16,6 +16,7 @@ import android.view.View;
 import com.aki.stepstracker.R;
 import com.aki.stepstracker.adapter.StepCountAdapter;
 import com.aki.stepstracker.model.StepInfo;
+import com.aki.stepstracker.utils.StepsDataParser;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.Bucket;
@@ -70,6 +71,8 @@ public class UserDataActivity extends AppCompatActivity {
             }
         });
         layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         new ReadData().execute();
     }
@@ -128,7 +131,7 @@ public class UserDataActivity extends AppCompatActivity {
             if (result != null) {
                 List<Bucket> buckets = result.getBuckets();
                 for (int i = 0; i < buckets.size(); i++) {
-                    dumpDataSet(buckets.get(i).getDataSets().get(0));
+                    stepsList.add(StepsDataParser.getDataFromBucket(buckets.get(i)));
                 }
             } else {
                 Log.i(TAG, "result was empty");
@@ -141,25 +144,6 @@ public class UserDataActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             recyclerView.setAdapter(new StepCountAdapter(getApplicationContext(), stepsList));
         }
-    }
-
-    private void dumpDataSet(DataSet dataSet) {
-        Log.i(TAG, "Data returned for Data type: " + dataSet.getDataType().getName());
-        DateFormat dateFormat = getDateTimeInstance();
-        int totalSteps = 0;
-//        String date = dateFormat.format(dataSet.getDataPoints().get(0).getStartTime(TimeUnit.MILLISECONDS));
-        for (DataPoint dp : dataSet.getDataPoints()) {
-//            Log.i(TAG, "Data point:");
-//            Log.i(TAG, "\tType: " + dp.getDataType().getName());
-            Log.i(TAG, "\tStart: " + dateFormat.format(dp.getStartTime(TimeUnit.MILLISECONDS)));
-            Log.i(TAG, "\tEnd: " + dateFormat.format(dp.getEndTime(TimeUnit.MILLISECONDS)));
-            for (Field field : dp.getDataType().getFields()) {
-                Log.i(TAG, "\tField: " + field.getName() + " Value: " + dp.getValue(field));
-                totalSteps = totalSteps + dp.getValue(field).asInt();
-            }
-        }
-        Log.i(TAG, "\tSteps for day: " + totalSteps);
-        stepsList.add(new StepInfo("date",totalSteps));
     }
 
 }

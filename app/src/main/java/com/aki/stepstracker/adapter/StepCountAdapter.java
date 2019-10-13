@@ -39,6 +39,7 @@ public class StepCountAdapter extends RecyclerView.Adapter<StepCountAdapter.View
         int steps = mData.get(position).getSteps();
         String date = mData.get(position).getDate();
         holder.stepsCount.setText(String.valueOf(steps));
+        holder.dateView.setText(date);
     }
 
     @Override
@@ -48,10 +49,12 @@ public class StepCountAdapter extends RecyclerView.Adapter<StepCountAdapter.View
 
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView stepsCount;
+        TextView dateView;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             stepsCount = itemView.findViewById(R.id.stepsCount);
+            dateView = itemView.findViewById(R.id.dateView);
         }
     }
 }
