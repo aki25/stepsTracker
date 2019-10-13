@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.aki.stepstracker.R;
 import com.aki.stepstracker.adapter.StepCountAdapter;
@@ -40,19 +41,28 @@ import static java.text.DateFormat.getDateTimeInstance;
 public class UserDataActivity extends AppCompatActivity {
 
     public static final String TAG = "UserDataActivity";
+
     RecyclerView recyclerView;
     List<StepInfo> stepsList = new ArrayList<>();
+    LinearLayoutManager layoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
         GradientDrawable drawable = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR, new int[] {Color.BLUE,Color.WHITE});
+                GradientDrawable.Orientation.TL_BR, new int[] {Color.parseColor("#FF8489"),Color.parseColor("#D5ADC8")});
         findViewById(R.id.root).setBackground(drawable);
 
         recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         new ReadData().execute();
+    }
+
+    public void toggleListOrder(View view) {
+        boolean flag = !layoutManager.getReverseLayout();
+        layoutManager.setReverseLayout(flag);
+        layoutManager.setStackFromEnd(flag);
     }
 
     private class ReadData extends AsyncTask<Void, Void, Void> {
