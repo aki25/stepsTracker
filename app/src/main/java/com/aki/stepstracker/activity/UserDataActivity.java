@@ -19,6 +19,7 @@ import com.aki.stepstracker.utils.StepsDataParser;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.data.Bucket;
+import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResponse;
@@ -86,7 +87,7 @@ public class UserDataActivity extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
             // Setting a start and end date using a range of 2 week before this moment.
 
-            Calendar calEnd = new GregorianCalendar();
+            Calendar calEnd = Calendar.getInstance();
             calEnd.setTime(new Date());
             calEnd.set(Calendar.DAY_OF_YEAR, calEnd.get(Calendar.DAY_OF_YEAR));
             calEnd.set(Calendar.HOUR_OF_DAY, 0);
@@ -102,16 +103,16 @@ public class UserDataActivity extends AppCompatActivity {
             Log.i(TAG, "Range Start: " + dateFormat.format(startTime));
             Log.i(TAG, "Range End: " + dateFormat.format(endTime));
 
-//            DataSource ESTIMATED_STEP_DELTAS = new DataSource.Builder()
-//                    .setAppPackageName("com.google.android.gms")
-//                    .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
-//                    .setType(DataSource.TYPE_DERIVED)
-//                    .setStreamName("estimated_steps")
-//                    .build();
+            DataSource ESTIMATED_STEP_DELTAS = new DataSource.Builder()
+                    .setAppPackageName("com.google.android.gms")
+                    .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
+                    .setType(DataSource.TYPE_DERIVED)
+                    .setStreamName("estimated_steps")
+                    .build();
 
             DataReadRequest readRequest =
                     new DataReadRequest.Builder()
-                            .read(DataType.TYPE_STEP_COUNT_DELTA)
+                            .aggregate(ESTIMATED_STEP_DELTAS, DataType.AGGREGATE_STEP_COUNT_DELTA)
                             .bucketByTime(1, TimeUnit.DAYS)
                             .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
                             .enableServerQueries()

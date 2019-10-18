@@ -16,7 +16,7 @@ public class StepsDataParser {
     private static final String TAG = "data parser";
 
     public static StepInfo getDataFromBucket(Bucket bucket) {
-        DateFormat dateFormat = DateFormat.getDateInstance();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance();
         List<DataSet> dataSets = bucket.getDataSets();
         int totalSteps = 0;
         for (DataSet dataSet : dataSets) {
